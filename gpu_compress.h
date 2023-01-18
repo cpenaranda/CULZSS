@@ -3,27 +3,27 @@
  *
  *
  ****************************************************************************
- *          CUDA LZSS 
+ *          CUDA LZSS
  *   Authors  : Adnan Ozsoy, Martin Swany,Indiana University - Bloomington
  *   Date    : April 11, 2011
- 
+
  ****************************************************************************
- 
+
          Copyright 2011 Adnan Ozsoy, Martin Swany, Indiana University - Bloomington
- 
+
          Licensed under the Apache License, Version 2.0 (the "License");
          you may not use this file except in compliance with the License.
          You may obtain a copy of the License at
- 
+
      http://www.apache.org/licenses/LICENSE-2.0
- 
+
          Unless required by applicable law or agreed to in writing, software
          distributed under the License is distributed on an "AS IS" BASIS,
          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
          See the License for the specific language governing permissions and
          limitations under the License.
  ****************************************************************************/
- 
+
  /***************************************************************************
  * Code is adopted from below source
  *
@@ -53,6 +53,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <iostream>
+
 /***************************************************************************
 *                                CONSTANTS
 ***************************************************************************/
@@ -78,12 +80,6 @@ typedef struct encoded_string_t
     int length;     /* length of longest match */
 } encoded_string_t;
 
-typedef enum
-{
-    ENCODE,
-    DECODE
-} MODES;
-
 typedef struct aftercompdata
 {
 	int tid;
@@ -91,7 +87,7 @@ typedef struct aftercompdata
 	unsigned char * buffer;
 	int buf_length;
 	unsigned char * bufferout;
-	int numts;	
+	int numts;
 	int comptookmore;
 	int newlen;
 } aftercompdata_t;
@@ -117,9 +113,14 @@ struct thread_data{
 /***************************************************************************
 *                                FUNCTIONS
 ***************************************************************************/
-
+void EncodeKernelSmash(const uint32_t &batch, const cudaStream_t &stream,
+                       char *device_uncompressed_data,
+                       const uint32_t &uncompressed_size,
+                       char *device_compressed_data,
+                       const uint32_t &chunk_size,
+                       uint32_t *device_compressed_sizes);
 extern "C" int  compression_kernel_wrapper(unsigned char *buffer, int buf_length,unsigned char * compressed_buffer, int compression_type, int wsize, int numthre, int nstreams, int index,unsigned char * in_d,unsigned char * out_d);
-extern "C" void  decompression_kernel_wrapper(unsigned char *buffer, int buf_length, int * comp_length, int compression_type, int wsize, int numthre,int index);
+// extern "C" void  decompression_kernel_wrapper(unsigned char *buffer, int buf_length, int * comp_length, int compression_type, int wsize, int numthre,int index);
 extern "C" int aftercompression_wrapper(unsigned char * buffer, int buf_length, unsigned char * bufferout, int * comp_length);
 extern "C" unsigned char * initGPUmem( int buf_length);
 extern "C" unsigned char * initCPUmem( int buf_length);
